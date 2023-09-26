@@ -1,3 +1,4 @@
+const { run } = require('jest');
 const { fifaData } = require('./fifa.js')
 
 
@@ -5,14 +6,23 @@ const { fifaData } = require('./fifa.js')
 	Verilen datayı parçalayarak aşağıdaki verileri (console.log-ing) elde ederek pratik yapın. 
 	
 	💡 İPUCU: Öncelikle datayı filtrelemek isteyebilirsiniz */
-
+const DunyaKupasi2014 = fifaData.filter(fifa => fifa.Year == 2014);
+console.log("2014 Dünya kupası :",DunyaKupasi2014)
 //(a) 2014 Dünya kupası Finali Evsahibi takım ismi (dizide "Home Team Name" anahtarı)
+const evSahibi = DunyaKupasi2014.map( fifa => fifa['Home Team Name'])
+console.log("Home Team Name ",evSahibi)
 
 //(b) 2014 Dünya kupası Finali Deplasman takım ismi  (dizide "Away Team Name" anahtarı)
+const deplasmanTakim = DunyaKupasi2014.map( fifa => fifa['Away Team Name'])
+console.log("Away Team Name",deplasmanTakim)
 
 //(c) 2014 Dünya kupası finali Ev sahibi takım golleri (dizide "Home Team Goals" anahtarı)
+const evSahibiGoller = DunyaKupasi2014.map( fifa => fifa['Home Team Goals'])
+console.log("Home Team Goals",evSahibiGoller)
 
 //(d)2014 Dünya kupası finali Deplasman takım golleri  (dizide "Away Team Goals" anahtarı)
+const deplasmanGoller = DunyaKupasi2014.map( fifa => fifa['Away Team Goals'])
+console.log("Away Team Goals",deplasmanGoller)
 
 //(e) 2014 Dünya kupası finali kazananı*/
 
@@ -25,10 +35,11 @@ const { fifaData } = require('./fifa.js')
 	💡 İPUCU - verilen data içindeki nesnelerin(objects) "Stage" anahtarına bakmalısınız
 */
 
-function Finaller(/* kodlar buraya */) {
-	
-    /* kodlar buraya */
+function Finaller(arr) {
+	const finalMacları = arr.filter(final => final.Stage == "Final")
+	return finalMacları;
 }
+console.log("Görev2:",Finaller(fifaData))
 
 
 
@@ -39,10 +50,13 @@ function Finaller(/* kodlar buraya */) {
 	3. Finaller data setindeki tüm yılları içeren "years" adındaki diziyi(array) döndürecek
 	*/
 
-function Yillar(/* kodlar buraya */) {
+function Yillar(arr,callback) {
 	
-    /* kodlar buraya */
+    const tumYillar = callback(arr).map(yil => yil.Year)
+	return tumYillar
 }
+
+console.log("Görev3:",Yillar(fifaData,Finaller))
 
 
 /*  Görev 4: 
@@ -53,11 +67,19 @@ function Yillar(/* kodlar buraya */) {
 	💡 İPUCU: Beraberlikler(ties) için şimdilik endişelenmeyin (Detaylı bilgi için README dosyasına bakabilirsiniz.)
 	4. Tüm kazanan ülkelerin isimlerini içeren `kazananlar` adında bir dizi(array) döndürecek(return)  */ 
 
-function Kazananlar(/* kodlar buraya */) {
+function Kazananlar(arr,callback) {
 	
-    /* kodlar buraya */
+    const kazanan = callback(arr).map(kazan =>{
+		if(kazan['Home Team Goals'] > kazan['Away Team Goals']){
+			return kazan['Home Team Name']
+		}else{
+			return kazan['Away Team Name']
+		}
+	})
+	return kazanan
 	
 }
+console.log("Görev4 :",Kazananlar(fifaData,Finaller))
 
 
 
@@ -72,11 +94,15 @@ function Kazananlar(/* kodlar buraya */) {
 	💡 İPUCU: her cümlenin adım 4'te belirtilen cümleyle birebir aynı olması gerekmektedir.
 */
 
-function YillaraGoreKazananlar(/* kodlar buraya */) {
-	
-/* kodlar buraya */
+function YillaraGoreKazananlar(arr,gorev2,gorev3,gorev4) {
+	const dizi = [];
+	for(let i = 0; i < gorev2(arr).length;i++){
+		dizi.push(`${gorev3(arr,gorev2)[i]} yılında, ${gorev4(arr,gorev2)[i]} dünya kupasını kazandı!`) 
+	}
+	return dizi;
 
 }
+console.log("Görev5 :",YillaraGoreKazananlar(fifaData,Finaller,Yillar,Kazananlar))
 
 
 /*  Görev 6: 
@@ -93,12 +119,24 @@ function YillaraGoreKazananlar(/* kodlar buraya */) {
 	
 */
 
-function OrtalamaGolSayisi(/* kodlar buraya */) {
+function OrtalamaGolSayisi(gorev2) {
 	
-    /* kodlar buraya */
+    const sonuc = gorev2.map(toplam => {
+		const avr =(toplam['Away Team Goals'] + toplam['Home Team Goals'])/2
+		return {
+			...toplam,
+			toplam:avr
+		}
+	})
+	const genelToplam = sonuc.reduce((toplama,gol) => {
+		return toplama + gol.toplam
+	},gorev2[0])
+
+	const ortalama = genelToplam / sonuc.length
+	return ortalama
 	
 }
-
+console.log("Görev6:",OrtalamaGolSayisi(Finaller(fifaData)))
 
 
 /// EKSTRA ÇALIŞMALAR ///
